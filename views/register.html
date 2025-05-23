@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Usuario</title>
+  <!-- Fuente Poppins de Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #e8f5e9;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .register-container {
+      background: #fff;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(60, 180, 80, 0.10);
+      width: 100%;
+      max-width: 370px;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .register-container h2 {
+      color: #43a047;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      font-size: 2rem;
+    }
+    .register-container form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+    .register-container input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #b2dfdb;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #f9fbe7;
+      transition: border-color 0.2s;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      box-sizing: border-box;
+    }
+    .register-container input:focus {
+      border-color: #43a047;
+      outline: none;
+    }
+    .register-container button {
+      width: 100%;
+      padding: 0.85rem;
+      background: #43a047;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      letter-spacing: 1px;
+      margin-top: 0.5rem;
+    }
+    .register-container button:hover {
+      background: #388e3c;
+    }
+    #registerMsg {
+      margin-top: 1.2rem;
+      text-align: center;
+      color: #d32f2f;
+      min-height: 1.2em;
+      font-size: 1rem;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Registro</h2>
+    <form id="registerForm">
+      <input type="text" name="username" placeholder="Usuario" required>
+      <input type="email" name="email" placeholder="Correo electrónico" required>
+      <input type="password" name="password" placeholder="Contraseña" required>
+      <button type="submit">Registrarse</button>
+    </form>
+    <div id="registerMsg"></div>
+  </div>
+  <script>
+    document.getElementById('registerForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: form.username.value,
+          email: form.email.value,
+          password: form.password.value
+        })
+      });
+      const data = await res.json();
+      document.getElementById('registerMsg').innerText = data.message || JSON.stringify(data);
+    };
+  </script>
+</body>
+</html>
