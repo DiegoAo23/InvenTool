@@ -9,38 +9,48 @@
     body {
       background: #e8f5e9;
       font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
     }
     .login-container {
       background: #fff;
-      padding: 2rem 2.5rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(60, 180, 80, 0.10);
-      min-width: 320px;
-      max-width: 350px;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(60, 180, 80, 0.10);
       width: 100%;
+      max-width: 370px;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .login-container h2 {
       color: #43a047;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       font-weight: 600;
       letter-spacing: 1px;
+      font-size: 2rem;
+    }
+    .login-container form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
     }
     .login-container input {
       width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
+      padding: 0.8rem;
       border: 1px solid #b2dfdb;
       border-radius: 8px;
       font-size: 1rem;
       background: #f9fbe7;
       transition: border-color 0.2s;
       font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      box-sizing: border-box;
     }
     .login-container input:focus {
       border-color: #43a047;
@@ -48,28 +58,44 @@
     }
     .login-container button {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.85rem;
       background: #43a047;
       color: #fff;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s;
       font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
       letter-spacing: 1px;
+      margin-top: 0.5rem;
     }
     .login-container button:hover {
       background: #388e3c;
     }
     #loginMsg {
-      margin-top: 1rem;
+      margin-top: 1.2rem;
       text-align: center;
       color: #d32f2f;
       min-height: 1.2em;
       font-size: 1rem;
       font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 1.2rem;
+      font-size: 1rem;
+    }
+    .login-link a {
+      color: #43a047;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .login-link a:hover {
+      color: #2e7031;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -82,6 +108,10 @@
       <button type="submit">Iniciar sesión</button>
     </form>
     <div id="loginMsg"></div>
+    <div class="login-link">
+      ¿No tienes cuenta?
+      <a href="/register">Regístrate aquí</a>
+    </div>
   </div>
   <script>
     document.getElementById('loginForm').onsubmit = async function(e) {
