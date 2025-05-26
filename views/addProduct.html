@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Añadir Producto</title>
+  <style>
+    body { font-family: 'Poppins', Arial, sans-serif; background: #e8f5e9; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .form-container {
+      background: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(60,180,80,0.15);
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    label { font-weight: 500; margin-top: 0.5rem; }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 0.8rem; border: 1px solid #b2dfdb; border-radius: 6px; font-size: 1rem; }
+    .btn {
+      background: #43a047;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(60, 180, 80, 0.08);
+      margin-right: 1rem;
+    }
+    .btn:hover { background: #388e3c; }
+    .cancel-btn {
+      background: #bdbdbd;
+      color: #333;
+      margin-left: 1rem;
+    }
+    .msg { margin-top: 10px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <script>
+  // Aplica modo oscuro desde el inicio si está activado
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }else{
+    document.body.classList.remove('dark-mode');
+  }
+</script>
+  <div class="form-container">
+    <h2>Añadir producto</h2>
+    <!-- Formulario de producto -->
+    <form id="productForm">
+      <label>Nombre:</label>
+      <input type="text" id="productName" required>
+      <label>SKU:</label>
+      <input type="text" id="productSku" required>
+      <label>Categoría:</label>
+      <input type="text" id="productCategory" required>
+      <label>Ubicación:</label>
+      <input type="text" id="productLocation" required>
+      <label>Stock inicial:</label>
+      <input type="number" id="productStock" min="0" required>
+      <label>Stock mínimo:</label>
+      <input type="number" id="productMinStock" min="0" required>
+      <label>Stock máximo:</label>
+      <input type="number" id="productMaxStock" min="0" required>
+      <div style="display:flex;justify-content:center;">
+        <button type="button" class="btn" id="nextToProvider">Siguiente</button>
+        <button type="button" class="btn cancel-btn" id="cancelProductForm">Cancelar</button>
+      </div>
+      <div id="productMsg" class="msg"></div>
+    </form>
+    <!-- Formulario de proveedor -->
+    <form id="providerForm" class="hidden">
+      <label>Nombre del proveedor:</label>
+      <input type="text" id="providerName" required>
+      <label>Nombre de contacto:</label>
+      <input type="text" id="providerContact">
+      <label>Email:</label>
+      <input type="email" id="providerEmail">
+      <label>Teléfono:</label>
+      <input type="text" id="providerPhone">
+      <div style="display:flex;justify-content:center;">
+        <button type="button" class="btn" id="finishAll">Terminar</button>
+        <button type="button" class="btn cancel-btn" id="cancelProviderForm">Cancelar</button>
+      </div>
+      <div id="providerMsg" class="msg"></div>
+    </form>
+  </div>
+  <script>
+    // Protección de acceso
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    // Elementos
+    const productForm = document.getElementById('productForm');
+    const providerForm = document.getElementById('providerForm');
+    const nextToProvider = document.getElementById('nextToProvider');
+    const finishAll = document.getElementById('finishAll');
+    const cancelProductForm = document.getElementById('cancelProductForm');
+    const cancelProviderForm = document.getElementById('cancelProviderForm');
+    const productMsg = document.getElementById('productMsg');
+    const providerMsg = document.getElementById('providerMsg');
+
+    // Datos temporales
+    let productData = {};
+
+    // Paso 1: Validar producto y pasar a proveedor
+    nextToProvider.onclick = function() {
+      productMsg.innerText = '';
+      // Validación
+      const name = document.getElementById('productName').value.trim();
+      const sku = document.getElementById('productSku').value.trim();
+      const category = document.getElementById('productCategory').value.trim();
+      const location = document.getElementById('productLocation').value.trim();
+      const stock = Number(document.getElementById('productStock').value);
+      const min_stock = Number(document.getElementById('productMinStock').value);
+      const max_stock = Number(document.getElementById('productMaxStock').value);
+
+      if (!name || !sku || !category || !location ||
+          isNaN(stock) || isNaN(min_stock) || isNaN(max_stock)) {
+        productMsg.style.color = 'red';
+        productMsg.innerText = 'Por favor, completa todos los campos del producto.';
+        return;
+      }
+      // Guardar datos temporalmente
+      productData = { name, sku, category, location, stock, min_stock, max_stock };
+      // Mostrar formulario proveedor
+      productForm.classList.add('hidden');
+      providerForm.classList.remove('hidden');
+    };
+
+    // Paso 2: Cancelar en cualquier paso
+    cancelProductForm.onclick = function() {
+      window.location.href = '/menu';
+    };
+    cancelProviderForm.onclick = function() {
+      providerForm.classList.add('hidden');
+      productForm.classList.remove('hidden');
+      providerMsg.innerText = '';
+    };
+
+    // Paso 3: Terminar y enviar todo al backend
+    finishAll.onclick = async function() {
+      providerMsg.innerText = '';
+      const name = document.getElementById('providerName').value.trim();
+      const contact_name = document.getElementById('providerContact').value.trim();
+      const email = document.getElementById('providerEmail').value.trim();
+      const phone = document.getElementById('providerPhone').value.trim();
+
+      if (!name) {
+        providerMsg.style.color = 'red';
+        providerMsg.innerText = 'El nombre del proveedor es obligatorio.';
+        return;
+      }
+
+      // Unir datos y enviar
+      const allData = {
+        ...productData,
+        provider: {
+          name,
+          contact_name,
+          email,
+          phone
+        }
+      };
+
+      try {
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(allData)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          providerMsg.style.color = '#388e3c';
+          providerMsg.innerText = 'Producto y proveedor creados correctamente';
+          setTimeout(() => { window.location.href = '/menu'; }, 1200);
+        } else {
+          providerMsg.style.color = 'red';
+          providerMsg.innerText = data.message || 'Error al crear producto/proveedor';
+        }
+      } catch {
+        providerMsg.style.color = 'red';
+        providerMsg.innerText = 'Error de conexión';
+      }
+    };
+  </script>
+</body>
+</html>

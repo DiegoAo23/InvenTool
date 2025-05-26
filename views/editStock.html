@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Stock</title>
+  <style>
+    body { font-family: 'Poppins', Arial, sans-serif; background: #e8f5e9; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .form-container { background: #fff; padding: 2rem 2.5rem; border-radius: 14px; box-shadow: 0 4px 24px rgba(60,180,80,0.15); min-width: 320px; width: 100%; max-width: 420px; }
+    .stock-info { background: #f5f5f5; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+    .stock-info p { margin: 0.5rem 0; font-weight: 500; }
+    label { font-weight: 500; margin-top: 0.5rem; display: block; }
+    input { width: 100%; max-width: 100%; padding: 0.5rem; margin-bottom: 0.8rem; border: 1px solid #b2dfdb; border-radius: 6px; font-size: 1rem; box-sizing: border-box; }
+    select { width: 100%; padding: 0.5rem; margin-bottom: 0.8rem; border: 1px solid #b2dfdb; border-radius: 6px; font-size: 1rem; box-sizing: border-box; }
+    .btn { background: #43a047; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; flex: 1; }
+    .btn:hover { background: #388e3c; }
+    .cancel-btn { background: #bdbdbd; color: #333; }
+    .cancel-btn:hover { background: #9e9e9e; }
+    .msg { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Editar Stock</h2>
+    
+    <div class="stock-info" id="stockInfo">
+      <p><strong>Stock actual:</strong> <span id="currentStock">-</span></p>
+      <p><strong>Stock mínimo:</strong> <span id="minStock">-</span></p>
+      <p><strong>Stock máximo:</strong> <span id="maxStock">-</span></p>
+    </div>
+
+    <form id="editForm">
+      <label>Cantidad de stock:</label>
+      <input type="number" id="stockQuantity" min="0" required>
+      
+      <label>Acción:</label>
+      <select id="actionSelect" required>
+        <option value="">Seleccionar acción</option>
+        <option value="sumar">Sumar</option>
+        <option value="retirar">Retirar</option>
+      </select>
+      
+      <div style="display:flex;gap:1rem;margin-top:1rem;">
+        <button type="button" class="btn cancel-btn" onclick="window.location.href='/menu'">Cancelar</button>
+        <button type="submit" class="btn">Finalizar</button>
+      </div>
+      <div id="editMsg" class="msg"></div>
+    </form>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const editMsg = document.getElementById('editMsg');
+
+    async function loadProduct() {
+      try {
+        const res = await fetch(`/api/products/${id}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const p = await res.json();
+         if (res.ok) {
+          document.getElementById('currentStock').textContent = p.stock;
+          document.getElementById('minStock').textContent = p.min_stock;
+          document.getElementById('maxStock').textContent = p.max_stock ?? '-';
+        }
+      } catch {
+        editMsg.style.color = 'red';
+        editMsg.innerText = 'Error al cargar producto';
+      }
+    }
+
+    loadProduct();
+
+ editform.onsubmit = async function(e) {
+  e.preventDefault();
+  editMsg.innerText = '';
+
+  // Obtener el stock actual
+  const stock = Number(document.getElementById('currentStock').textContent);
+
+  // Validar stock
+  if (isNaN(stockActually) || stockActually < 0) {
+    editMsg.style.color = 'red';
+    editMsg.innerText = 'Stock inválido';
+    return;
+  }
+
+  try {
+    // Hacer la petición PUT al backend
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({stock })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      editMsg.style.color = '#388e3c';
+      editMsg.innerText = 'Stock actualizado correctamente';
+      setTimeout(() => {
+        window.location.href = '/menu';
+      }, 1200);
+    } else {
+      editMsg.style.color = 'red';
+      editMsg.innerText = data.message || 'Error al actualizar producto';
+    }
+
+  } catch {
+    editMsg.style.color = 'red';
+    editMsg.innerText = 'Error de conexión';
+  }
+};
+    </script>
+</body>
+</html>

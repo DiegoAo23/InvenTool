@@ -1,0 +1,12 @@
+Correo: admin@email.com
+Contraseña: admin123@
+Usuario: admin
+
+        if (res.ok) {
+          document.getElementById('currentStock').textContent = p.stock;
+          document.getElementById('minStock').textContent = p.min_stock;
+          document.getElementById('maxStock').textContent = p.max_stock ?? '-';
+        } else {
+          editMsg.style.color = 'red';
+          editMsg.innerText = 'Producto no encontrado';
+        }

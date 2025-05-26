@@ -13,14 +13,32 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Servir archivos estáticos de la carpeta views
-app.use(express.static(path.join(__dirname, 'views')));
+//app.use(express.static(path.join(__dirname, 'views')));
 
 // Opcional: rutas directas
-app.get('/login', (req, res) => {
+app.get('/login', (req,res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'register.html'));
+});
+app.get('/menu', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'menu.html'));
+});
+app.get('/add-product', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'addProduct.html'));
+});
+app.get('/edit-product', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'editProduct.html'));
+});
+app.get('/view-product', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'viewProduct.html'));
+});
+app.get('/movements', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'movements.html'));
+});
+app.get('/edit-stock', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'editStock.html'));
 });
 
 // Middlewares

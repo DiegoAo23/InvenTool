@@ -1,0 +1,39 @@
+body.dark-mode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.dark-mode .navbar,
+.dark-mode .sidebar,
+.dark-mode .dropdown,
+.dark-mode .product-card,
+.dark-mode .form-container,
+.dark-mode .empty-products {
+  background: #1e1e1e !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .sidebar-btn,
+.dark-mode .user-btn,
+.dark-mode .add-product-btn,
+.dark-mode .product-btn {
+  background-color: #2e7d32 !important;
+  color: #fff !important;
+}
+
+.dark-mode .sidebar-btn:hover,
+.dark-mode .user-btn:hover,
+.dark-mode .add-product-btn:hover {
+  background-color: #1b5e20 !important;
+}
+
+.dark-mode .product-card h3 {
+  color: #81c784;
+}
+
+.dark-mode .product-btn.view-btn {
+  color: #90caf9;
+}
+.dark-mode .product-btn.delete-btn {
+  color: #ef9a9a;
+}

@@ -6,15 +6,35 @@ const register = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
-    // Validación básica
+    // Validación: campos obligatorios y sin espacios en blanco
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
+    if (
+      typeof username !== 'string' ||
+      typeof email !== 'string' ||
+      typeof password !== 'string' ||
+      username.trim().length === 0 ||
+      email.trim().length === 0 ||
+      password.trim().length === 0
+    ) {
+      return res.status(400).json({ message: 'No se permiten campos vacíos o solo espacios' });
+    }
+    if (/\s/.test(username) || /\s/.test(email) || /\s/.test(password)) {
+      return res.status(400).json({ message: 'No se permiten espacios en blanco en usuario, correo o contraseña' });
     }
 
     // Validar email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: 'Correo electrónico no válido' });
+    }
+
+    // Validar dominio de correo
+    const allowedDomains = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
+    const emailDomain = email.split('@')[1];
+    if (!allowedDomains.includes(emailDomain)) {
+      return res.status(400).json({ message: 'Solo se permiten correos de gmail, hotmail, outlook o yahoo.' });
     }
 
     // Validar contraseña
@@ -52,9 +72,20 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validar campos
+    // Validar campos obligatorios y sin espacios en blanco
     if (!email || !password) {
       return res.status(400).json({ message: 'Correo y contraseña son obligatorios' });
+    }
+    if (
+      typeof email !== 'string' ||
+      typeof password !== 'string' ||
+      email.trim().length === 0 ||
+      password.trim().length === 0
+    ) {
+      return res.status(400).json({ message: 'No se permiten campos vacíos o solo espacios' });
+    }
+    if (/\s/.test(email) || /\s/.test(password)) {
+      return res.status(400).json({ message: 'No se permiten espacios en blanco en el correo o la contraseña' });
     }
 
     // Validar email
@@ -71,7 +102,7 @@ const login = async (req, res) => {
     // Buscar usuario
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Usuario o contraseña incorrectos' });
+      return res.status(400).json({ message: 'El usuario no existe' });
     }
 
     // Verificar contraseña
@@ -83,7 +114,7 @@ const login = async (req, res) => {
     // Generar token
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({ message: 'Login exitoso', token });
+    res.json({ message: 'Login exitoso', token, username: user.username });
   } catch (error) {
     console.error('Error en login:', error);
     res.status(500).json({ message: 'Error interno del servidor' });

@@ -56,6 +56,23 @@
       border-color: #43a047;
       outline: none;
     }
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #43a047;
+      font-size: 1.2rem;
+      user-select: none;
+      z-index: 2;
+    }
     .login-container button {
       width: 100%;
       padding: 0.85rem;
@@ -104,7 +121,10 @@
     <h2>Iniciar Sesión</h2>
     <form id="loginForm">
       <input type="email" name="email" placeholder="Correo electrónico" required>
-      <input type="password" name="password" placeholder="Contraseña" required>
+      <div class="password-wrapper">
+        <input type="password" name="password" id="passwordInput" placeholder="Contraseña" required>
+        <span class="toggle-password" id="togglePassword" title="Mostrar/Ocultar contraseña">&#128065;</span>
+      </div>
       <button type="submit">Iniciar sesión</button>
     </form>
     <div id="loginMsg"></div>
@@ -114,19 +134,61 @@
     </div>
   </div>
   <script>
+    document.getElementById('togglePassword').onclick = function() {
+      const input = document.getElementById('passwordInput');
+      if (input.type === "password") {
+        input.type = "text";
+        this.style.color = "#2e7031";
+      } else {
+        input.type = "password";
+        this.style.color = "#43a047";
+      }
+    };
+
     document.getElementById('loginForm').onsubmit = async function(e) {
       e.preventDefault();
       const form = e.target;
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      // Validación: campos obligatorios
+      if (!email || !password) {
+        document.getElementById('loginMsg').innerText = 'Por favor, completa todos los campos.';
+        return;
+      }
+      // Validación: formato de correo
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        document.getElementById('loginMsg').innerText = 'Correo electrónico no válido.';
+        return;
+      }
+      // Validación: sin espacios en blanco
+      if (/\s/.test(email) || /\s/.test(password)) {
+        document.getElementById('loginMsg').innerText = 'No se permiten espacios en blanco en el correo o la contraseña.';
+        return;
+      }
+      // Validación: longitud mínima de contraseña
+      if (password.length < 8) {
+        document.getElementById('loginMsg').innerText = 'La contraseña debe tener al menos 8 caracteres.';
+        return;
+      }
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: form.email.value,
-          password: form.password.value
+          email,
+          password
         })
       });
       const data = await res.json();
       document.getElementById('loginMsg').innerText = data.message || JSON.stringify(data);
+      if (data.token) {
+         localStorage.setItem('token', data.token);
+        // Si quieres mostrar el nombre de usuario:
+        localStorage.setItem('username', data.username || 'Usuario');
+         window.location.href = "/menu";
+      }
     };
   </script>
 </body>

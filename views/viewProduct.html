@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle de Producto</title>
+  <style>  
+    body { font-family: 'Poppins', Arial, sans-serif; background: #e8f5e9; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .card { background: #fff; padding: 2rem 2.5rem; border-radius: 14px; box-shadow: 0 4px 24px rgba(60,180,80,0.15); min-width: 320px; }
+    .card h2 { margin-top: 0; color: #43a047; }
+    .back-btn { margin-top: 1.5rem; margin-left: 1.5rem; background: #43a047; color: #fff; border: none; border-radius: 8px; padding: 0.7rem 2rem; font-size: 1rem; cursor: pointer; }
+    .back-btn:hover { background: #388e3c; }
+  </style>
+</head>
+<body>
+  <div class="card" id="productDetail"></div>
+  <button class="back-btn" onclick="window.location.href='/menu'">Volver</button>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const detail = document.getElementById('productDetail');
+
+    async function loadProduct() {
+      try {
+        const res = await fetch(`/api/products/${id}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const p = await res.json();
+        if (res.ok) {
+          detail.innerHTML = `
+            <h2>${p.name}</h2>
+            <p><strong>SKU:</strong> ${p.sku}</p>
+            <p><strong>Categoría:</strong> ${p.category || 'N/A'}</p>
+            <p><strong>Ubicación:</strong> ${p.location || 'N/A'}</p>
+            <p><strong>Stock:</strong> ${p.stock}</p>
+            <p><strong>Stock mínimo:</strong> ${p.min_stock}</p>
+            <p><strong>Stock máximo:</strong> ${p.max_stock || 'N/A'}</p>
+            <p><strong>Proveedor:</strong> ${p.provider_id?.name || 'N/A'}</p>
+          `;
+        } else {
+          detail.innerHTML = 'Producto no encontrado';
+        }
+      } catch {
+        detail.innerHTML = 'Error al cargar producto';
+      }
+    }
+    loadProduct();
+  </script>
+</body>
+</html>

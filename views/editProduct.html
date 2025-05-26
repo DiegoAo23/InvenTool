@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Producto</title>
+  <style>
+    body { font-family: 'Poppins', Arial, sans-serif; background: #e8f5e9; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .form-container { background: #fff; padding: 2rem 2.5rem; border-radius: 14px; box-shadow: 0 4px 24px rgba(60,180,80,0.15); min-width: 320px; width: 100%; max-width: 420px; }
+    label { font-weight: 500; margin-top: 0.5rem; }
+    input { width: 100%; max-width: 100%; padding: 0.5rem; margin-bottom: 0.8rem; border: 1px solid #b2dfdb; border-radius: 6px; font-size: 1rem; }
+    .btn { background: #43a047; color: #fff; border: none; border-radius: 8px; padding: 0.8rem 2rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-right: 1rem; }
+    .btn:hover { background: #388e3c; }
+    .cancel-btn { background: #bdbdbd; color: #333; margin-left: 1rem; }
+    .msg { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Editar producto</h2>
+    <form id="editForm">
+      <label>Nombre:</label>
+      <input type="text" id="productName" required>
+      <label>Categoria:</label>
+      <input type="text" id="productCategory" required>
+      <label>Ubicación:</label>
+      <input type="text" id="productLocation" required>
+      <label>Stock minimo:</label>
+      <input type="number" id="productMinStock" min="0" required>
+      <label>Stock máximo:</label>
+      <input type="number" id="productMaxStock" min="0" required>
+      <div style="display:flex;justify-content:center;">
+        <button type="submit" class="btn">Guardar</button>
+        <button type="button" class="btn cancel-btn" onclick="window.location.href='/menu'">Cancelar</button>
+      </div>
+      <div id="editMsg" class="msg"></div>
+    </form>
+  </div>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const editForm = document.getElementById('editForm');
+    const editMsg = document.getElementById('editMsg');
+
+    async function loadProduct() {
+      try {
+        const res = await fetch(`/api/products/${id}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const p = await res.json();
+        if (res.ok) {
+          document.getElementById('productName').value = p.name;
+          document.getElementById('productCategory').value = p.category || '';
+          document.getElementById('productLocation').value = p.location || '';
+          document.getElementById('productMinStock').value = p.min_stock;
+          document.getElementById('productMaxStock').value = p.max_stock || '';
+        } else {
+          editMsg.innerText = 'Producto no encontrado';
+        }
+      } catch {
+        editMsg.innerText = 'Error al cargar producto';
+      }
+    }
+    loadProduct();
+
+    editForm.onsubmit = async function(e) {
+      e.preventDefault();
+      editMsg.innerText = '';
+      const name = document.getElementById('productName').value.trim();
+      const category = document.getElementById('productCategory').value.trim();
+      const location = document.getElementById('productLocation').value.trim();
+      const min_stock = Number(document.getElementById('productMinStock').value);
+      const max_stock = Number(document.getElementById('productMaxStock').value);
+      if (!name || !category || !location || isNaN(min_stock) || isNaN(max_stock)) {
+        editMsg.style.color = 'red';
+        editMsg.innerText = 'Por favor, completa todos los campos correctamente';
+        return;
+      }
+      if (!name || !category || !location) {
+    editMsg.style.color = 'red';
+    editMsg.innerText = 'Por favor, completa todos los campos correctamente';
+    return;
+  }
+
+  if (isNaN(min_stock) || min_stock < 0) {
+    editMsg.style.color = 'red';
+    editMsg.innerText = 'El stock mínimo debe ser un número válido y no negativo';
+    return;
+  }
+
+  if (isNaN(max_stock) || max_stock < 0) {
+    editMsg.style.color = 'red';
+    editMsg.innerText = 'El stock máximo debe ser un número válido y no negativo';
+    return;
+  }
+
+  if (min_stock > max_stock) {
+    editMsg.style.color = 'red';
+    editMsg.innerText = 'El stock mínimo no puede ser mayor que el stock máximo';
+    return;
+  }
+
+      try {
+        const res = await fetch(`/api/products/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ name, category, location, min_stock, max_stock })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          editMsg.style.color = '#388e3c';
+          editMsg.innerText = 'Producto actualizado';
+          setTimeout(() => { window.location.href = '/menu'; }, 1200);
+        } else {
+          editMsg.style.color = 'red';
+          editMsg.innerText = data.message || 'Error al actualizar producto';
+        }
+      } catch {
+        editMsg.style.color = 'red';
+        editMsg.innerText = 'Error de conexión';
+      }
+    };
+
+    
+  </script>
+</body>
+</html>
