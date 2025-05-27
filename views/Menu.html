@@ -296,6 +296,7 @@
   <div class="sidebar" id="sidebar">
     <button class="sidebar-btn active" id="btnProductos">Productos</button>
     <button class="sidebar-btn" id="btnMovimientos">Movimientos</button>
+    <button class="sidebar-btn" id="btnAlertas">Alertas</button>
   </div>
   <div class="main-content" id="mainContent">
     <div class="empty-products" id="emptyProductsMsg" style="display:none;">
@@ -349,6 +350,8 @@
     // Sidebar: cambiar sección activa
     const btnProductos = document.getElementById('btnProductos');
     const btnMovimientos = document.getElementById('btnMovimientos');
+    const btnAlertas = document.getElementById('btnAlertas');
+
     btnProductos.onclick = function() {
       btnProductos.classList.add('active');
       btnMovimientos.classList.remove('active');
@@ -356,6 +359,10 @@
     };
     btnMovimientos.onclick = function() {
         window.location.href = '/movements';
+    };
+    
+    btnAlertas.onclick = function() {
+        window.location.href = '/alerts';
     };
 
     // Mostrar mensaje si no hay productos (simulación)
@@ -382,7 +389,7 @@
             <button class="product-btn edit-btn" onclick="editProduct('${p._id}')">✎</button>
             <button class="product-btn delete-btn" onclick="deleteProduct('${p._id}')">✖</button>
             <button class="product-btn view-btn" onclick="viewProduct('${p._id}')">👁</button>
-            <button class="product-btn mod-btn" onclick="editStock('${p._id}')">+</button>          </div>
+             </div>
             <h3>${p.name}</h3>
             <p><strong>SKU:</strong> ${p.sku}</p>
             <p><strong>Categoría:</strong> ${p.category || 'N/A'}</p>
@@ -410,11 +417,6 @@ document.getElementById('addProductBtnCenter').onclick = function() {
 //funcion para editar Producto
 function editProduct(id) {
   window.location.href = `/edit-product?id=${id}`;
-}
-
-// Función para editar stock
-function editStock(id) {
-  window.location.href = `/edit-stock?id=${id}`;
 }
 
 function deleteProduct(id) {

@@ -12,9 +12,6 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Servir archivos estáticos de la carpeta views
-//app.use(express.static(path.join(__dirname, 'views')));
-
 // Opcional: rutas directas
 app.get('/login', (req,res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
@@ -36,11 +33,10 @@ app.get('/view-product', (req, res) => {
 });
 app.get('/movements', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'movements.html'));
+}); 
+app.get('/alerts', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'showAlerts.html'));
 });
-app.get('/edit-stock', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'editStock.html'));
-});
-
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());

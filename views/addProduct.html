@@ -108,6 +108,28 @@
     // Datos temporales
     let productData = {};
 
+    async function registerMovement(productId, movementData) {
+      try {
+        const res = await fetch('/api/stocks/movements', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            productId: productId,
+            type: 'entrada',
+            quantity: movementData.stock,
+            user: movementData.user 
+          })
+        });
+        return res.ok;
+      } catch (error) {
+        console.error('Error registrando movimiento:', error);
+        return false;
+      }
+    }
+
     // Paso 1: Validar producto y pasar a proveedor
     nextToProvider.onclick = function() {
       productMsg.innerText = '';
@@ -179,8 +201,22 @@
         });
         const data = await res.json();
         if (res.ok) {
-          providerMsg.style.color = '#388e3c';
-          providerMsg.innerText = 'Producto y proveedor creados correctamente';
+           if (productData.stock > 0) {
+             const movementRegistered = await registerMovement(data.product.id, {
+              stock: productData.stock,
+              user: localStorage.getItem('username') || 'Sistema'
+            });
+            if (movementRegistered) {
+              providerMsg.style.color = '#388e3c';
+              providerMsg.innerText = 'Producto, proveedor y movimiento registrados correctamente';
+            } else {
+              providerMsg.style.color = '#388e3c';
+              providerMsg.innerText = 'Producto y proveedor creados. Advertencia: No se pudo registrar el movimiento inicial';
+            }
+          } else {
+            providerMsg.style.color = '#388e3c';
+            providerMsg.innerText = 'Producto y proveedor creados correctamente';
+          }
           setTimeout(() => { window.location.href = '/menu'; }, 1200);
         } else {
           providerMsg.style.color = 'red';

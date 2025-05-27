@@ -76,14 +76,27 @@ exports.getProductById = async (req, res) => {
 // Actualizar producto
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, category, location,min_stock, max_stock } = req.body;
+    const { name, category, location,min_stock, max_stock,stock } = req.body;
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      { name, category, location, min_stock, max_stock },
+      { name, category, location, min_stock, max_stock,stock },
       { new: true }
     );
     if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
     res.json({ message: 'Producto actualizado', product });
+
+        // 🚨 Si el stock es menor al mínimo permitido, genera una alerta
+    if (stock < min_stock) {
+      // Crea la alerta solo si no existe una alerta previa para este producto con el mismo stock
+      const existingAlert = await Alert.findOne({ product: product._id, stock });
+      if (!existingAlert) {
+        await Alert.create({
+          product: product._id,
+          stock,
+          triggeredAt: new Date()
+        });
+      }
+    }
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar producto', error });
   }

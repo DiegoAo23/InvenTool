@@ -25,21 +25,34 @@ const getAlerts = async (req, res) => {
 const createMovement = async (req, res) => {
   try {
     const { productId, type, quantity, user } = req.body;
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
 
-    // Actualiza el stock
-    if (type === 'entrada') product.stock += quantity;
-    else if (type === 'salida') product.stock -= quantity;
+    // Verifica que el producto exista
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    // Actualiza el stock del producto
+    if (type === 'entrada') {
+      product.stock += quantity;
+    } else if (type === 'salida') {
+      product.stock -= quantity;
+    }
     await product.save();
 
     // Crea el movimiento
-    const movement = new Movement({ product: productId, type, quantity, user });
+    const movement = new Movement({
+      product: productId,
+      type,
+      quantity,
+      user
+    });
     await movement.save();
 
     res.status(201).json({ message: 'Movimiento registrado', movement });
   } catch (error) {
-    res.status(500).json({ message: 'Error al registrar movimiento', error });
+    console.error('Error al registrar movimiento:', error);
+    res.status(500).json({ message: 'Error al registrar movimiento' });
   }
 };
 
